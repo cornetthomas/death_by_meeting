@@ -13,6 +13,20 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       home: hasSeenIntro ? MyHomePage() : IntroPage(),
+      theme: ThemeData(
+        fontFamily: 'Rubik',
+        primaryColor: Colors.white,
+        primaryColorDark: Colors.white,
+        accentColor: Colors.black87,
+        textTheme: Theme.of(context).textTheme.copyWith(
+              title: new TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+                fontFamily: 'Abel',
+              ),
+            ),
+      ),
     );
   }
 
@@ -59,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage>
   double _height = 0.0;
   AnimationController _controller;
   Animation<double> _animation;
-  int _availableSeconds = 8 * 60 * 60;
+  int _availableSeconds = 120; //8 * 60 * 60;
   int _elapsedSeconds = 0;
   int _elapsedMinutes = 0;
   double _treshold = 0.6;
@@ -118,12 +132,9 @@ class _MyHomePageState extends State<MyHomePage>
         children: [
           Align(
             alignment: Alignment.bottomCenter,
-            child: ClipPath(
-              clipper: BottomWaveClipper(animation: _animation),
-              child: Container(
-                color: Colors.black87,
-                height: _animation == null ? 0.0 : _animation.value,
-              ),
+            child: Container(
+              color: Colors.black87,
+              height: _animation == null ? 0.0 : _animation.value,
             ),
           ),
           Align(
@@ -194,31 +205,4 @@ class _MyHomePageState extends State<MyHomePage>
     _controller.dispose();
     super.dispose();
   }
-}
-
-class BottomWaveClipper extends CustomClipper<Path> {
-  const BottomWaveClipper({
-    @required this.animation,
-  }) : super(reclip: animation);
-
-  final Listenable animation;
-
-  @override
-  Path getClip(Size size) {
-    var path = new Path();
-    path.moveTo(0.0, size.height);
-    path.lineTo(0.0, size.height - (size.height - 20));
-    path.lineTo(size.width / 2, size.height - (size.height - 20));
-
-    path.lineTo(size.width, size.height - (size.height - 30));
-
-    path.lineTo(size.width, size.height);
-
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }
