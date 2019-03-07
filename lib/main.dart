@@ -33,6 +33,8 @@ class _PageState extends State<Page> {
   double _opa = 0.0;
   double _tickOpa = 1.0;
 
+  var _dur = Duration(milliseconds: 500);
+
   Stopwatch _timer = Stopwatch();
   Color _color = Colors.black87;
 
@@ -85,7 +87,7 @@ class _PageState extends State<Page> {
           Align(
             alignment: Alignment.bottomCenter,
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 300),
+              duration: _dur,
               curve: Curves.easeIn,
               color: _color,
               height: _height,
@@ -109,7 +111,7 @@ class _PageState extends State<Page> {
                           style: _tts,
                         ),
                         opacity: _tickOpa,
-                        duration: Duration(milliseconds: 500),
+                        duration: _dur,
                         curve: Curves.easeInOut,
                       ),
                       AnimatedOpacity(
@@ -118,7 +120,7 @@ class _PageState extends State<Page> {
                           style: _tts,
                         ),
                         opacity: 1.0 - _tickOpa,
-                        duration: Duration(milliseconds: 500),
+                        duration: _dur,
                         curve: Curves.easeInOut,
                       ),
                     ],
@@ -155,7 +157,7 @@ class _PageState extends State<Page> {
                 ],
               ),
               opacity: _opa,
-              duration: Duration(milliseconds: 500),
+              duration: _dur,
               curve: Curves.elasticInOut,
             ),
           ),
