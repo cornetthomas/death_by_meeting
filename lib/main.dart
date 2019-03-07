@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.black87,
         textTheme: Theme.of(context).textTheme.copyWith(
             title: new TextStyle(
-              fontSize: 28.0,
+              fontSize: 38.0,
               color: Colors.black87,
             ),
             caption: new TextStyle(
@@ -93,41 +93,15 @@ class _PageState extends State<Page> {
               height: _height,
             ),
           ),
-          Align(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.all(60.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  AnimatedOpacity(
-                    child: Column(
-                      children: [
-                        Text(
-                          "Death by meeting",
-                          style: Theme.of(context).textTheme.title,
-                        ),
-                        RaisedButton(
-                          child: Text("Reset"),
-                          onPressed: () {
-                            setState(() {
-                              _sec = 0;
-                              _min = 0;
-                              _height = 0;
-                              _opa = 0.0;
-                              _color = Colors.black87;
-                              _timer.reset();
-                            });
-                          },
-                        )
-                      ],
-                    ),
-                    opacity: _opa,
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.elasticInOut,
-                  ),
-                  Row(
+          Padding(
+            padding: const EdgeInsets.all(60.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -151,12 +125,43 @@ class _PageState extends State<Page> {
                       ),
                     ],
                   ),
+                ),
+                Text(
+                  "${_min.toString().padLeft(2, "0")} minutes ${(_sec - (_min * 60)).toString().padLeft(2, "0")} seconds",
+                  style: Theme.of(context).textTheme.caption,
+                ),
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: AnimatedOpacity(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Text(
-                    "${_min.toString().padLeft(2, "0")} minutes ${(_sec - (_min * 60)).toString().padLeft(2, "0")} seconds",
-                    style: Theme.of(context).textTheme.caption,
+                    "Death by meeting",
+                    style: Theme.of(context).textTheme.title,
                   ),
+                  RaisedButton(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text("Reset"),
+                    onPressed: () {
+                      setState(() {
+                        _sec = 0;
+                        _min = 0;
+                        _height = 0;
+                        _opa = 0.0;
+                        _color = Colors.black87;
+                        _timer.reset();
+                      });
+                    },
+                  )
                 ],
               ),
+              opacity: _opa,
+              duration: Duration(milliseconds: 500),
+              curve: Curves.elasticInOut,
             ),
           ),
           Positioned(
@@ -187,10 +192,5 @@ class _PageState extends State<Page> {
         },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
