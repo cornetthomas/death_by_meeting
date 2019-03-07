@@ -1,112 +1,80 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  bool hasSeenIntro = false;
-
   @override
   Widget build(BuildContext context) {
-    // getIntroState();
-
     return MaterialApp(
-      home: hasSeenIntro ? MyHomePage() : IntroPage(),
-    );
-  }
-
-  void getIntroState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    if (prefs.getBool("HAS_SEEN_INTRO")) {
-      prefs.setBool("HAS_SEEN_INTRO", true);
-    }
-  }
-}
-
-class IntroPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return PageView(
-      children: <Widget>[
-        Center(child: Text("Page1")),
-        Center(child: Text("Page2")),
-        Center(
-          child: RaisedButton(
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("HAS_SEEN_INTRO", true);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
-                );
-              },
-              child: Text("Ok")),
-        ),
-      ],
+      home: Page(),
+      theme: ThemeData(
+        fontFamily: 'Abel',
+        primaryColor: Colors.white,
+        primaryColorDark: Colors.white,
+        accentColor: Colors.black87,
+        textTheme: Theme.of(context).textTheme.copyWith(
+            title: new TextStyle(
+              fontSize: 28.0,
+              color: Colors.black87,
+            ),
+            caption: new TextStyle(
+              fontSize: 16.0,
+              color: Colors.black87,
+            )),
+      ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class Page extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _PageState createState() => _PageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _PageState extends State<Page> {
   double _height = 0.0;
-  AnimationController _controller;
-  Animation<double> _animation;
-  int _availableSeconds = 8 * 60 * 60;
-  int _elapsedSeconds = 0;
-  int _elapsedMinutes = 0;
-  double _treshold = 0.6;
-  double _opacity = 0.0;
-  CrossFadeState _fadeState = CrossFadeState.showFirst;
+  int _availSec = 10; //8 * 60 * 60;
+  int _sec = 0;
+  int _min = 0;
+  double _limit = 0.6;
+  double _opa = 0.0;
+  double _tickOpa = 1.0;
+
   Stopwatch _timer;
+  Color _color = Colors.black87;
 
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
 
     _timer = Stopwatch();
-  }
-
-  void updateAnimation() {
-    double _newHeight = (_elapsedSeconds / _availableSeconds) *
-        MediaQuery.of(context).size.height;
-
-    _animation = Tween(begin: _height, end: _newHeight)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-    _height = _newHeight;
   }
 
   void updateTime(Timer timer) {
     if (_timer.isRunning) {
       setState(() {
-        _elapsedSeconds = _timer.elapsed.inSeconds;
-        _elapsedMinutes = _timer.elapsed.inMinutes;
+        _sec = _timer.elapsed.inSeconds;
+        _min = _timer.elapsed.inMinutes;
 
-        _fadeState = _fadeState == CrossFadeState.showFirst
-            ? CrossFadeState.showSecond
-            : CrossFadeState.showFirst;
+        _tickOpa = _tickOpa == 0.0 ? _tickOpa = 1.0 : _tickOpa = 0.0;
 
-        updateAnimation();
+        double _newHeight =
+            (_sec / _availSec) * MediaQuery.of(context).size.height;
 
-        double _currentPerc = (_elapsedSeconds / _availableSeconds);
+        _height = _newHeight;
 
-        print(_currentPerc);
+        double _currentPerc = (_sec / _availSec);
 
-        if (_currentPerc >= _treshold) {
-          timer.cancel();
-          _opacity = 1.0;
-          print("Death by Meeting");
+        if (_currentPerc >= _limit) {
+          _timer.stop();
         }
       });
     } else {
+      setState(() {
+        _height = MediaQuery.of(context).size.height;
+        _opa = 1.0;
+        _color = Colors.redAccent;
+      });
       timer.cancel();
     }
   }
@@ -118,12 +86,11 @@ class _MyHomePageState extends State<MyHomePage>
         children: [
           Align(
             alignment: Alignment.bottomCenter,
-            child: ClipPath(
-              clipper: BottomWaveClipper(animation: _animation),
-              child: Container(
-                color: Colors.black87,
-                height: _animation == null ? 0.0 : _animation.value,
-              ),
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeIn,
+              color: _color,
+              height: _height,
             ),
           ),
           Align(
@@ -135,31 +102,67 @@ class _MyHomePageState extends State<MyHomePage>
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   AnimatedOpacity(
-                    child: Text("Death by meeting"),
-                    opacity: _opacity,
+                    child: Column(
+                      children: [
+                        Text(
+                          "Death by meeting",
+                          style: Theme.of(context).textTheme.title,
+                        ),
+                        RaisedButton(
+                          child: Text("Reset"),
+                          onPressed: () {
+                            setState(() {
+                              _sec = 0;
+                              _min = 0;
+                              _height = 0;
+                              _opa = 0.0;
+                              _color = Colors.black87;
+                              _timer.reset();
+                            });
+                          },
+                        )
+                      ],
+                    ),
+                    opacity: _opa,
                     duration: Duration(milliseconds: 500),
-                    curve: Curves.bounceIn,
+                    curve: Curves.elasticInOut,
                   ),
-                  AnimatedCrossFade(
-                    firstChild: Text("Tick"),
-                    secondChild: Text('Tock'),
-                    crossFadeState: _fadeState,
-                    duration: Duration(milliseconds: 200),
-                    firstCurve: Curves.easeInOut,
-                    secondCurve: Curves.easeInOut,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      AnimatedOpacity(
+                        child: Text(
+                          "TICK",
+                          style: Theme.of(context).textTheme.title,
+                        ),
+                        opacity: _tickOpa,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      ),
+                      AnimatedOpacity(
+                        child: Text(
+                          "TOCK",
+                          style: Theme.of(context).textTheme.title,
+                        ),
+                        opacity: 1.0 - _tickOpa,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      ),
+                    ],
                   ),
                   Text(
-                    "${_elapsedMinutes.toString().padLeft(2, "0")}:${(_elapsedSeconds - (_elapsedMinutes * 60)).toString().padLeft(2, "0")}",
+                    "${_min.toString().padLeft(2, "0")} minutes ${(_sec - (_min * 60)).toString().padLeft(2, "0")} seconds",
+                    style: Theme.of(context).textTheme.caption,
                   ),
                 ],
               ),
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height * (1 - _treshold),
-            height: 30.0,
-            left: 5.0,
-            width: 100.0,
+            top: MediaQuery.of(context).size.height * (1 - _limit),
+            height: 2.0,
+            width: MediaQuery.of(context).size.width,
             child: Divider(
               height: 2.0,
               color: Colors.black45,
@@ -176,11 +179,8 @@ class _MyHomePageState extends State<MyHomePage>
           setState(() {
             if (_timer.isRunning) {
               _timer.stop();
-              _controller.stop();
             } else {
-              _controller.forward();
               _timer.start();
-
               Timer.periodic(Duration(seconds: 1), updateTime);
             }
           });
@@ -191,34 +191,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
-}
-
-class BottomWaveClipper extends CustomClipper<Path> {
-  const BottomWaveClipper({
-    @required this.animation,
-  }) : super(reclip: animation);
-
-  final Listenable animation;
-
-  @override
-  Path getClip(Size size) {
-    var path = new Path();
-    path.moveTo(0.0, size.height);
-    path.lineTo(0.0, size.height - (size.height - 20));
-    path.lineTo(size.width / 2, size.height - (size.height - 20));
-
-    path.lineTo(size.width, size.height - (size.height - 30));
-
-    path.lineTo(size.width, size.height);
-
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }
