@@ -4,6 +4,8 @@ import 'package:share/share.dart';
 
 void main() => runApp(App());
 
+const black = Colors.black87;
+
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class App extends StatelessWidget {
         fontFamily: 'Abel',
         primaryColor: Colors.white,
         primaryColorDark: Colors.white,
-        accentColor: Colors.black87,
+        accentColor: black,
       ),
     );
   }
@@ -32,20 +34,16 @@ class _PageState extends State<Page> {
   double _limit = 0.6;
   double _opa = 0.0;
   double _tickOpa = 1.0;
-
   var _dur = Duration(milliseconds: 500);
-
   Stopwatch _timer = Stopwatch();
-  Color _color = Colors.black87;
-
+  Color _color = black;
   TextStyle _tts = TextStyle(
     fontSize: 38.0,
-    color: Colors.black87,
+    color: black,
   );
-
   TextStyle _cts = TextStyle(
     fontSize: 16.0,
-    color: Colors.black87,
+    color: black,
   );
 
   void updateTime(Timer timer) {
@@ -74,7 +72,7 @@ class _PageState extends State<Page> {
       _min = 0;
       _height = 0.0;
       _opa = 0.0;
-      _color = Colors.black87;
+      _color = black;
       _timer.reset();
     });
   }
@@ -169,7 +167,7 @@ class _PageState extends State<Page> {
               children: [
                 Divider(
                   height: 2.0,
-                  color: Colors.black87,
+                  color: black,
                 ),
                 Text(
                     "Don't spend more than 6 out of 8 hours a day in meetings."),
@@ -182,7 +180,7 @@ class _PageState extends State<Page> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FloatingActionButton(
-          foregroundColor: Colors.black87,
+          foregroundColor: black,
           backgroundColor: Colors.white,
           child: _timer.isRunning
               ? Icon(Icons.stop)
