@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:share/share.dart';
 
 void main() => runApp(MyApp());
 
@@ -79,6 +80,17 @@ class _PageState extends State<Page> {
     }
   }
 
+  void resetTimer() {
+    setState(() {
+      _sec = 0;
+      _min = 0;
+      _height = 0.0;
+      _opa = 0.0;
+      _color = Colors.black87;
+      _timer.reset();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,19 +155,19 @@ class _PageState extends State<Page> {
                     "Death by meeting",
                     style: Theme.of(context).textTheme.title,
                   ),
-                  RaisedButton(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Text("Reset"),
-                    onPressed: () {
-                      setState(() {
-                        _sec = 0;
-                        _min = 0;
-                        _height = 0;
-                        _opa = 0.0;
-                        _color = Colors.black87;
-                        _timer.reset();
-                      });
-                    },
+                  Text(
+                    "Try again tomorrow, good luck!",
+                    style: Theme.of(context).textTheme.caption,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RaisedButton(
+                      child: Text("Share"),
+                      onPressed: () {
+                        Share.share(
+                            "I wasted my time in meetings again today.");
+                      },
+                    ),
                   )
                 ],
               ),
@@ -166,30 +178,45 @@ class _PageState extends State<Page> {
           ),
           Positioned(
             top: MediaQuery.of(context).size.height * (1 - _limit),
-            height: 2.0,
+            height: 30.0 * (1 - _opa),
             width: MediaQuery.of(context).size.width,
-            child: Divider(
-              height: 2.0,
-              color: Colors.black45,
+            child: Column(
+              children: [
+                Divider(
+                  height: 2.0,
+                  color: Colors.black87,
+                ),
+                Text(
+                    "Don't spend more than 6 out of 8 ours a day in meetings."),
+              ],
             ),
           )
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        foregroundColor: Colors.black87,
-        backgroundColor: Colors.white70,
-        child: _timer.isRunning ? Icon(Icons.stop) : Icon(Icons.play_arrow),
-        onPressed: () {
-          setState(() {
-            if (_timer.isRunning) {
-              _timer.stop();
-            } else {
-              _timer.start();
-              Timer.periodic(Duration(seconds: 1), updateTime);
-            }
-          });
-        },
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: FloatingActionButton(
+          foregroundColor: Colors.black87,
+          backgroundColor: Colors.white70,
+          child: _timer.isRunning
+              ? Icon(Icons.stop)
+              : _opa == 1.0 ? Text("Reset") : Icon(Icons.play_arrow),
+          onPressed: () {
+            setState(() {
+              if (_timer.isRunning) {
+                _timer.stop();
+              } else {
+                if (_opa == 1.0) {
+                  resetTimer();
+                } else {
+                  _timer.start();
+                  Timer.periodic(Duration(seconds: 1), updateTime);
+                }
+              }
+            });
+          },
+        ),
       ),
     );
   }
