@@ -61,7 +61,6 @@ class _PageState extends State<Page> {
         _height = MediaQuery.of(context).size.height;
         _opa = 1.0;
         _color = Colors.redAccent;
-
         timer.cancel();
       }
     });
