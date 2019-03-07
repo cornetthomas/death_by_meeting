@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:share/share.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(App());
 
-class MyApp extends StatelessWidget {
+class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,15 +14,6 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         primaryColorDark: Colors.white,
         accentColor: Colors.black87,
-        textTheme: Theme.of(context).textTheme.copyWith(
-            title: new TextStyle(
-              fontSize: 38.0,
-              color: Colors.black87,
-            ),
-            caption: new TextStyle(
-              fontSize: 16.0,
-              color: Colors.black87,
-            )),
       ),
     );
   }
@@ -42,14 +33,18 @@ class _PageState extends State<Page> {
   double _opa = 0.0;
   double _tickOpa = 1.0;
 
-  Stopwatch _timer;
+  Stopwatch _timer = Stopwatch();
   Color _color = Colors.black87;
 
-  void initState() {
-    super.initState();
+  TextStyle _tts = TextStyle(
+    fontSize: 38.0,
+    color: Colors.black87,
+  );
 
-    _timer = Stopwatch();
-  }
+  TextStyle _cts = TextStyle(
+    fontSize: 16.0,
+    color: Colors.black87,
+  );
 
   void updateTime(Timer timer) {
     setState(() {
@@ -112,7 +107,7 @@ class _PageState extends State<Page> {
                       AnimatedOpacity(
                         child: Text(
                           "TICK",
-                          style: Theme.of(context).textTheme.title,
+                          style: _tts,
                         ),
                         opacity: _tickOpa,
                         duration: Duration(milliseconds: 500),
@@ -121,7 +116,7 @@ class _PageState extends State<Page> {
                       AnimatedOpacity(
                         child: Text(
                           "TOCK",
-                          style: Theme.of(context).textTheme.title,
+                          style: _tts,
                         ),
                         opacity: 1.0 - _tickOpa,
                         duration: Duration(milliseconds: 500),
@@ -132,7 +127,7 @@ class _PageState extends State<Page> {
                 ),
                 Text(
                   "${_min.toString().padLeft(2, "0")} minutes ${(_sec - (_min * 60)).toString().padLeft(2, "0")} seconds",
-                  style: Theme.of(context).textTheme.caption,
+                  style: _cts,
                 ),
               ],
             ),
@@ -143,13 +138,10 @@ class _PageState extends State<Page> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Death by meeting",
-                    style: Theme.of(context).textTheme.title,
-                  ),
+                  Text("Death by meeting", style: _tts),
                   Text(
                     "Try again tomorrow, good luck!",
-                    style: Theme.of(context).textTheme.caption,
+                    style: _cts,
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -190,7 +182,7 @@ class _PageState extends State<Page> {
         padding: const EdgeInsets.all(8.0),
         child: FloatingActionButton(
           foregroundColor: Colors.black87,
-          backgroundColor: Colors.white70,
+          backgroundColor: Colors.white,
           child: _timer.isRunning
               ? Icon(Icons.stop)
               : _opa == 1.0 ? Text("Reset") : Icon(Icons.play_arrow),
