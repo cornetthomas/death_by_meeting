@@ -187,7 +187,7 @@ class _PageState extends State<Page> {
                   color: Colors.black87,
                 ),
                 Text(
-                    "Don't spend more than 6 out of 8 ours a day in meetings."),
+                    "Don't spend more than 6 out of 8 hours a day in meetings."),
               ],
             ),
           )
