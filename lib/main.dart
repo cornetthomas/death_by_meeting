@@ -7,7 +7,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
+      home: Page(),
       theme: ThemeData(
         fontFamily: 'Abel',
         primaryColor: Colors.white,
@@ -27,80 +27,54 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class Page extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _PageState createState() => _PageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+class _PageState extends State<Page> {
   double _height = 0.0;
-  AnimationController _controller;
-  Animation<double> _animation;
-  int _availableSeconds = 10; //8 * 60 * 60;
-  int _elapsedSeconds = 0;
-  int _elapsedMinutes = 0;
-  double _treshold = 0.6;
-  double _opacity = 0.0;
-  double _tickOpacity = 1.0;
-  CrossFadeState _fadeState = CrossFadeState.showFirst;
+  int _availSec = 10; //8 * 60 * 60;
+  int _sec = 0;
+  int _min = 0;
+  double _limit = 0.6;
+  double _opa = 0.0;
+  double _tickOpa = 1.0;
+
   Stopwatch _timer;
   Color _color = Colors.black87;
 
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
 
     _timer = Stopwatch();
   }
 
-  void updateAnimation() {
-    double _newHeight = (_elapsedSeconds / _availableSeconds) *
-        MediaQuery.of(context).size.height;
-
-    print(" ${_height} +  ${_newHeight}");
-
-    _animation = Tween(begin: 0, end: _newHeight)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _animation.addListener(() {
-      print(_animation.value);
-    });
-
-    _animation.addStatusListener((status) {
-      print(status);
-    });
-
-    _controller.reset();
-
-    _height = _newHeight;
-  }
-
   void updateTime(Timer timer) {
     if (_timer.isRunning) {
-      _elapsedSeconds = _timer.elapsed.inSeconds;
-      _elapsedMinutes = _timer.elapsed.inMinutes;
+      setState(() {
+        _sec = _timer.elapsed.inSeconds;
+        _min = _timer.elapsed.inMinutes;
 
-      _tickOpacity =
-          _tickOpacity == 0.0 ? _tickOpacity = 1.0 : _tickOpacity = 0.0;
+        _tickOpa = _tickOpa == 0.0 ? _tickOpa = 1.0 : _tickOpa = 0.0;
 
-      _fadeState = _fadeState == CrossFadeState.showFirst
-          ? CrossFadeState.showSecond
-          : CrossFadeState.showFirst;
+        double _newHeight =
+            (_sec / _availSec) * MediaQuery.of(context).size.height;
 
-      //_controller.forward();
-      print("play");
+        _height = _newHeight;
 
-      updateAnimation();
+        double _currentPerc = (_sec / _availSec);
 
-      double _currentPerc = (_elapsedSeconds / _availableSeconds);
-
-      if (_currentPerc >= _treshold) {
-        timer.cancel();
-        _opacity = 1.0;
-        _color = Colors.redAccent;
-      }
+        if (_currentPerc >= _limit) {
+          _timer.stop();
+        }
+      });
     } else {
+      setState(() {
+        _height = MediaQuery.of(context).size.height;
+        _opa = 1.0;
+        _color = Colors.redAccent;
+      });
       timer.cancel();
     }
   }
@@ -110,18 +84,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          AnimatedBuilder(
-              animation: _controller,
-              builder: (BuildContext context, Widget child) {
-                print('Buikd');
-                return Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    color: _color,
-                    height: _animation == null ? 0.0 : _animation.value,
-                  ),
-                );
-              }),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeIn,
+              color: _color,
+              height: _height,
+            ),
+          ),
           Align(
             alignment: Alignment.center,
             child: Padding(
@@ -131,11 +102,28 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   AnimatedOpacity(
-                    child: Text(
-                      "Death by meeting",
-                      style: Theme.of(context).textTheme.title,
+                    child: Column(
+                      children: [
+                        Text(
+                          "Death by meeting",
+                          style: Theme.of(context).textTheme.title,
+                        ),
+                        RaisedButton(
+                          child: Text("Reset"),
+                          onPressed: () {
+                            setState(() {
+                              _sec = 0;
+                              _min = 0;
+                              _height = 0;
+                              _opa = 0.0;
+                              _color = Colors.black87;
+                              _timer.reset();
+                            });
+                          },
+                        )
+                      ],
                     ),
-                    opacity: _opacity,
+                    opacity: _opa,
                     duration: Duration(milliseconds: 500),
                     curve: Curves.elasticInOut,
                   ),
@@ -148,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           "TICK",
                           style: Theme.of(context).textTheme.title,
                         ),
-                        opacity: _tickOpacity,
+                        opacity: _tickOpa,
                         duration: Duration(milliseconds: 500),
                         curve: Curves.easeInOut,
                       ),
@@ -157,14 +145,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           "TOCK",
                           style: Theme.of(context).textTheme.title,
                         ),
-                        opacity: 1.0 - _tickOpacity,
+                        opacity: 1.0 - _tickOpa,
                         duration: Duration(milliseconds: 500),
                         curve: Curves.easeInOut,
                       ),
                     ],
                   ),
                   Text(
-                    "${_elapsedMinutes.toString().padLeft(2, "0")} minutes ${(_elapsedSeconds - (_elapsedMinutes * 60)).toString().padLeft(2, "0")} seconds",
+                    "${_min.toString().padLeft(2, "0")} minutes ${(_sec - (_min * 60)).toString().padLeft(2, "0")} seconds",
                     style: Theme.of(context).textTheme.caption,
                   ),
                 ],
@@ -172,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height * (1 - _treshold),
+            top: MediaQuery.of(context).size.height * (1 - _limit),
             height: 2.0,
             width: MediaQuery.of(context).size.width,
             child: Divider(
@@ -191,10 +179,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           setState(() {
             if (_timer.isRunning) {
               _timer.stop();
-              _controller.stop();
             } else {
               _timer.start();
-
               Timer.periodic(Duration(seconds: 1), updateTime);
             }
           });
@@ -205,7 +191,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 }
