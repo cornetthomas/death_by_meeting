@@ -52,32 +52,24 @@ class _PageState extends State<Page> {
   }
 
   void updateTime(Timer timer) {
-    if (_timer.isRunning) {
-      setState(() {
+    setState(() {
+      if (_timer.isRunning) {
         _sec = _timer.elapsed.inSeconds;
         _min = _timer.elapsed.inMinutes;
+        _tickOpa = 1.0 - _tickOpa;
+        _height = (_sec / _availSec) * MediaQuery.of(context).size.height;
 
-        _tickOpa = _tickOpa == 0.0 ? _tickOpa = 1.0 : _tickOpa = 0.0;
-
-        double _newHeight =
-            (_sec / _availSec) * MediaQuery.of(context).size.height;
-
-        _height = _newHeight;
-
-        double _currentPerc = (_sec / _availSec);
-
-        if (_currentPerc >= _limit) {
+        if ((_sec / _availSec) >= _limit) {
           _timer.stop();
         }
-      });
-    } else {
-      setState(() {
+      } else {
         _height = MediaQuery.of(context).size.height;
         _opa = 1.0;
         _color = Colors.redAccent;
-      });
-      timer.cancel();
-    }
+
+        timer.cancel();
+      }
+    });
   }
 
   void resetTimer() {
