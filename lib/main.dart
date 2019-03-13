@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 void main() => runApp(App());
 
 const black = Colors.black87;
+const curve = Curves.easeInOut;
 
 class App extends StatelessWidget {
   @override
@@ -24,11 +25,10 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> {
   double _height = 0.0;
-  int _availSec = 300;
+  int _limit = 5;
   int _sec = 0;
-  double _limit = 0.7;
   double _opa = 0.0;
-  double _tickOpa = 1.0;
+  double _tick = 1.0;
   var _dur = Duration(milliseconds: 400);
   Stopwatch _watch = Stopwatch();
   Color _color = black;
@@ -45,13 +45,12 @@ class _PageState extends State<Page> {
     setState(() {
       if (_watch.isRunning) {
         _sec = _watch.elapsed.inSeconds;
-        _tickOpa = 1.0 - _tickOpa;
-        _height =
-            (_sec / _availSec) * MediaQuery.of(context).size.height * _limit;
-        if (_sec == _availSec) {
+        _tick = 1.0 - _tick;
+        _height = (_sec / _limit) * MediaQuery.of(context).size.height * 0.7;
+        if (_sec == _limit) {
           _watch.stop();
           _height = MediaQuery.of(context).size.height;
-          _opa = 1.0;
+          _opa = _tick = 1.0;
           _color = Colors.redAccent;
           timer.cancel();
         }
@@ -77,7 +76,7 @@ class _PageState extends State<Page> {
             alignment: Alignment.bottomCenter,
             child: AnimatedContainer(
               duration: _dur,
-              curve: Curves.easeIn,
+              curve: curve,
               color: _color,
               height: _height,
             ),
@@ -99,18 +98,18 @@ class _PageState extends State<Page> {
                           "TICK",
                           style: _tts,
                         ),
-                        opacity: _tickOpa,
+                        opacity: _tick - _opa,
                         duration: _dur,
-                        curve: Curves.easeInOut,
+                        curve: curve,
                       ),
                       AnimatedOpacity(
                         child: Text(
                           "TOCK",
                           style: _tts,
                         ),
-                        opacity: 1.0 - _tickOpa,
+                        opacity: 1.0 - _tick,
                         duration: _dur,
-                        curve: Curves.easeInOut,
+                        curve: curve,
                       ),
                     ],
                   ),
@@ -128,20 +127,20 @@ class _PageState extends State<Page> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Death by meeting", style: _tts),
+                  Text("WASTED", style: _tts),
                   Text(
-                    "Another day wasted. Try again tomorrow!",
+                    "Try again tomorrow!",
                     style: _cts,
                   ),
                 ],
               ),
               opacity: _opa,
               duration: _dur,
-              curve: Curves.elasticInOut,
+              curve: curve,
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height * (1 - _limit),
+            top: MediaQuery.of(context).size.height * (1 - 0.7),
             height: 30.0 * (1 - _opa),
             width: MediaQuery.of(context).size.width,
             child: Column(
@@ -150,7 +149,7 @@ class _PageState extends State<Page> {
                   height: 2.0,
                   color: black,
                 ),
-                Text("Get your workday back! Max meeting time to 2 hours."),
+                Text("Get your workday back! Limit: 2 hours."),
               ],
             ),
           )
