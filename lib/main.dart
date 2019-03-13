@@ -25,11 +25,11 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> {
   double _height = 0.0;
-  int _limit = 5;
+  int _limit = 2 * 60 * 60;
   int _sec = 0;
   double _opa = 0.0;
   double _tick = 1.0;
-  var _dur = Duration(milliseconds: 400);
+  var _dur = Duration(milliseconds: 350);
   Stopwatch _watch = Stopwatch();
   Color _color = black;
   TextStyle _tts = TextStyle(
@@ -41,9 +41,9 @@ class _PageState extends State<Page> {
     color: black,
   );
 
-  void updateTime(Timer timer) {
-    setState(() {
-      if (_watch.isRunning) {
+  void update(Timer t) {
+    if (_watch.isRunning) {
+      setState(() {
         _sec = _watch.elapsed.inSeconds;
         _tick = 1.0 - _tick;
         _height = (_sec / _limit) * MediaQuery.of(context).size.height * 0.7;
@@ -52,13 +52,16 @@ class _PageState extends State<Page> {
           _height = MediaQuery.of(context).size.height;
           _opa = _tick = 1.0;
           _color = Colors.redAccent;
-          timer.cancel();
+          t.cancel();
         }
-      }
-    });
+      });
+    } else {
+      _tick = 1.0 - _tick;
+      t.cancel();
+    }
   }
 
-  void resetTimer() {
+  void reset() {
     setState(() {
       _sec = 0;
       _height = _opa = 0.0;
@@ -115,7 +118,7 @@ class _PageState extends State<Page> {
                   ),
                 ),
                 Text(
-                  "${(_sec / 60).floor().toString().padLeft(2, "0")} minutes ${(_sec % 60).toString().padLeft(2, "0")} seconds",
+                  "${(_sec / 60).floor().toString().padLeft(2, "0")} min. ${(_sec % 60).toString().padLeft(2, "0")} sec.",
                   style: _cts,
                 ),
               ],
@@ -170,10 +173,10 @@ class _PageState extends State<Page> {
                 _watch.stop();
               } else {
                 if (_opa == 1.0) {
-                  resetTimer();
+                  reset();
                 } else {
                   _watch.start();
-                  Timer.periodic(Duration(seconds: 1), updateTime);
+                  Timer.periodic(Duration(seconds: 1), update);
                 }
               }
             });
