@@ -24,8 +24,8 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> {
-  double _height = 0.0;
-  int _limit = 2 * 60 * 60;
+  double _h = 0.0;
+  int _limit = 7200;
   int _sec = 0;
   double _opa = 0.0;
   double _tick = 1.0;
@@ -46,10 +46,10 @@ class _PageState extends State<Page> {
       setState(() {
         _sec = _watch.elapsed.inSeconds;
         _tick = 1.0 - _tick;
-        _height = (_sec / _limit) * MediaQuery.of(context).size.height * 0.7;
+        _h = (_sec / _limit) * MediaQuery.of(context).size.height * 0.7;
         if (_sec == _limit) {
           _watch.stop();
-          _height = MediaQuery.of(context).size.height;
+          _h = MediaQuery.of(context).size.height;
           _opa = _tick = 1.0;
           _color = Colors.redAccent;
           t.cancel();
@@ -64,7 +64,7 @@ class _PageState extends State<Page> {
   void reset() {
     setState(() {
       _sec = 0;
-      _height = _opa = 0.0;
+      _h = _opa = 0.0;
       _color = black;
       _watch.reset();
     });
@@ -81,17 +81,17 @@ class _PageState extends State<Page> {
               duration: _dur,
               curve: curve,
               color: _color,
-              height: _height,
+              height: _h,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(60.0),
+            padding: EdgeInsets.all(60.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: EdgeInsets.all(24.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -160,13 +160,13 @@ class _PageState extends State<Page> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(8.0),
         child: FloatingActionButton(
           foregroundColor: black,
           backgroundColor: Colors.white,
           child: _watch.isRunning
-              ? Icon(Icons.pause)
-              : _opa == 1.0 ? Text("Reset") : Icon(Icons.play_arrow),
+              ? Text("Pause")
+              : _opa == 1.0 ? Text("Reset") : Text("Go"),
           onPressed: () {
             setState(() {
               if (_watch.isRunning) {
