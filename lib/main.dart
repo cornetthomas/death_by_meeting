@@ -33,7 +33,7 @@ class _PageState extends State<Page> {
   Stopwatch _watch = Stopwatch();
   Color _color = black;
   TextStyle _tts = TextStyle(
-    fontSize: 48.0,
+    fontSize: 38.0,
     color: black,
   );
   TextStyle _cts = TextStyle(
@@ -45,12 +45,12 @@ class _PageState extends State<Page> {
     if (_watch.isRunning) {
       setState(() {
         _sec = _watch.elapsed.inSeconds;
-        _tick = 1.0 - _tick;
-        _h = (_sec / _limit) * MediaQuery.of(context).size.height * 0.7;
+        _tick = 1 - _tick;
+        _h = (_sec / _limit) * MediaQuery.of(context).size.height * 0.6;
         if (_sec == _limit) {
           _watch.stop();
           _h = MediaQuery.of(context).size.height;
-          _opa = _tick = 1.0;
+          _opa = _tick = 1;
           _color = Colors.redAccent;
           t.cancel();
         }
@@ -143,8 +143,8 @@ class _PageState extends State<Page> {
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height * (1 - 0.7),
-            height: 30.0 * (1 - _opa),
+            top: MediaQuery.of(context).size.height * (1 - 0.6),
+            height: 60.0 * (1 - _opa),
             width: MediaQuery.of(context).size.width,
             child: Column(
               children: [
@@ -152,13 +152,15 @@ class _PageState extends State<Page> {
                   height: 2.0,
                   color: black,
                 ),
-                Text("Get your workday back! Limit: 2 hours."),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Reclaim your workday! Limit: 2 hours"),
+                ),
               ],
             ),
           )
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
         padding: EdgeInsets.all(8.0),
         child: FloatingActionButton(
