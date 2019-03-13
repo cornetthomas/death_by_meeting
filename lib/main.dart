@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:share/share.dart';
 
 void main() => runApp(App());
 
@@ -13,9 +12,6 @@ class App extends StatelessWidget {
       home: Page(),
       theme: ThemeData(
         fontFamily: 'Abel',
-        primaryColor: Colors.white,
-        primaryColorDark: Colors.white,
-        accentColor: black,
       ),
     );
   }
@@ -28,17 +24,16 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> {
   double _height = 0.0;
-  int _availSec = 10; //8 * 60 * 60;
+  int _availSec = 300;
   int _sec = 0;
-  int _min = 0;
-  double _limit = 0.6;
+  double _limit = 0.7;
   double _opa = 0.0;
   double _tickOpa = 1.0;
-  var _dur = Duration(milliseconds: 500);
-  Stopwatch _timer = Stopwatch();
+  var _dur = Duration(milliseconds: 400);
+  Stopwatch _watch = Stopwatch();
   Color _color = black;
   TextStyle _tts = TextStyle(
-    fontSize: 38.0,
+    fontSize: 48.0,
     color: black,
   );
   TextStyle _cts = TextStyle(
@@ -48,20 +43,18 @@ class _PageState extends State<Page> {
 
   void updateTime(Timer timer) {
     setState(() {
-      if (_timer.isRunning) {
-        _sec = _timer.elapsed.inSeconds;
-        _min = _timer.elapsed.inMinutes;
+      if (_watch.isRunning) {
+        _sec = _watch.elapsed.inSeconds;
         _tickOpa = 1.0 - _tickOpa;
-        _height = (_sec / _availSec) * MediaQuery.of(context).size.height;
-
-        if ((_sec / _availSec) >= _limit) {
-          _timer.stop();
+        _height =
+            (_sec / _availSec) * MediaQuery.of(context).size.height * _limit;
+        if (_sec == _availSec) {
+          _watch.stop();
+          _height = MediaQuery.of(context).size.height;
+          _opa = 1.0;
+          _color = Colors.redAccent;
+          timer.cancel();
         }
-      } else {
-        _height = MediaQuery.of(context).size.height;
-        _opa = 1.0;
-        _color = Colors.redAccent;
-        timer.cancel();
       }
     });
   }
@@ -69,11 +62,9 @@ class _PageState extends State<Page> {
   void resetTimer() {
     setState(() {
       _sec = 0;
-      _min = 0;
-      _height = 0.0;
-      _opa = 0.0;
+      _height = _opa = 0.0;
       _color = black;
-      _timer.reset();
+      _watch.reset();
     });
   }
 
@@ -125,7 +116,7 @@ class _PageState extends State<Page> {
                   ),
                 ),
                 Text(
-                  "${_min.toString().padLeft(2, "0")} minutes ${(_sec - (_min * 60)).toString().padLeft(2, "0")} seconds",
+                  "${(_sec / 60).floor().toString().padLeft(2, "0")} minutes ${(_sec % 60).toString().padLeft(2, "0")} seconds",
                   style: _cts,
                 ),
               ],
@@ -139,19 +130,9 @@ class _PageState extends State<Page> {
                 children: [
                   Text("Death by meeting", style: _tts),
                   Text(
-                    "Try again tomorrow, good luck!",
+                    "Another day wasted. Try again tomorrow!",
                     style: _cts,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: RaisedButton(
-                      child: Text("Share"),
-                      onPressed: () {
-                        Share.share(
-                            "I wasted my time in meetings again today.");
-                      },
-                    ),
-                  )
                 ],
               ),
               opacity: _opa,
@@ -169,8 +150,7 @@ class _PageState extends State<Page> {
                   height: 2.0,
                   color: black,
                 ),
-                Text(
-                    "Don't spend more than 6 out of 8 hours a day in meetings."),
+                Text("Get your workday back! Max meeting time to 2 hours."),
               ],
             ),
           )
@@ -182,18 +162,18 @@ class _PageState extends State<Page> {
         child: FloatingActionButton(
           foregroundColor: black,
           backgroundColor: Colors.white,
-          child: _timer.isRunning
-              ? Icon(Icons.stop)
+          child: _watch.isRunning
+              ? Icon(Icons.pause)
               : _opa == 1.0 ? Text("Reset") : Icon(Icons.play_arrow),
           onPressed: () {
             setState(() {
-              if (_timer.isRunning) {
-                _timer.stop();
+              if (_watch.isRunning) {
+                _watch.stop();
               } else {
                 if (_opa == 1.0) {
                   resetTimer();
                 } else {
-                  _timer.start();
+                  _watch.start();
                   Timer.periodic(Duration(seconds: 1), updateTime);
                 }
               }
