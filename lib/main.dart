@@ -24,20 +24,20 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> {
-  double _h = 0.0;
+  double _h = 0;
   int _limit = 7200;
   int _sec = 0;
-  double _opa = 0.0;
-  double _tick = 1.0;
+  double _opa = 0;
+  double _tick = 1;
   var _dur = Duration(milliseconds: 350);
   Stopwatch _watch = Stopwatch();
   Color _color = black;
   TextStyle _tts = TextStyle(
-    fontSize: 38.0,
+    fontSize: 38,
     color: black,
   );
   TextStyle _cts = TextStyle(
-    fontSize: 16.0,
+    fontSize: 16,
     color: black,
   );
 
@@ -154,7 +154,7 @@ class _PageState extends State<Page> {
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text("Reclaim your workday! Limit: 2 hours"),
+                  child: Text("Reclaim your workday! Limit 2 hours"),
                 ),
               ],
             ),
@@ -178,7 +178,7 @@ class _PageState extends State<Page> {
                   reset();
                 } else {
                   _watch.start();
-                  Timer.periodic(Duration(seconds: 1), update);
+                  Timer.periodic(Duration(milliseconds: 900), update);
                 }
               }
             });
