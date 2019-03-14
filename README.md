@@ -1,6 +1,6 @@
 # Death By Meeting
 
-These days the office jungle is filled with traps called meetings. Once you fall for them, you are trapped in time wasting black hole.
+These days the office jungle is filled with traps called meetings. Once you fall for them, you are trapped in a time wasting black hole.
 Hey, not all meetings are bad. But a finding a balance between deep meaningful work and the distraction of meetings is key to have a healthy work spirit.
 
 Death By Meeting is a fun way to pay attention to this balance.
@@ -15,7 +15,7 @@ Death By Meeting is a fun way to pay attention to this balance.
 
 ## Flutter Create
 
-For Flutter Create I have set the limit to 30minutes. If needed you can change the variable _limit in main.dart to a lower number (in seconds)
+For Flutter Create I have set the limit to 5 minutes. If needed you can change the variable _limit in main.dart to a lower number (in seconds)
 
 
 ## Possible features

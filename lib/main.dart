@@ -25,7 +25,7 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> {
   double _h = 0;
-  int _limit = 1800;
+  int _limit = 300;
   int _sec = 0;
   double _op = 0;
   double _tick = 1;
