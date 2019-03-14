@@ -25,13 +25,13 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> {
   double _h = 0;
-  int _limit = 7200;
+  int _limit = 1800;
   int _sec = 0;
-  double _opa = 0;
+  double _op = 0;
   double _tick = 1;
   var _dur = Duration(milliseconds: 350);
   Stopwatch _watch = Stopwatch();
-  Color _color = black;
+  Color _c = black;
   TextStyle _tts = TextStyle(
     fontSize: 38,
     color: black,
@@ -50,13 +50,13 @@ class _PageState extends State<Page> {
         if (_sec == _limit) {
           _watch.stop();
           _h = MediaQuery.of(context).size.height;
-          _opa = _tick = 1;
-          _color = Colors.redAccent;
+          _op = _tick = 1;
+          _c = Colors.redAccent;
           t.cancel();
         }
       });
     } else {
-      _tick = 1.0 - _tick;
+      _tick = 1 - _tick;
       t.cancel();
     }
   }
@@ -64,8 +64,8 @@ class _PageState extends State<Page> {
   void reset() {
     setState(() {
       _sec = 0;
-      _h = _opa = 0.0;
-      _color = black;
+      _h = _op = 0;
+      _c = black;
       _watch.reset();
     });
   }
@@ -80,18 +80,18 @@ class _PageState extends State<Page> {
             child: AnimatedContainer(
               duration: _dur,
               curve: curve,
-              color: _color,
+              color: _c,
               height: _h,
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(60.0),
+            padding: EdgeInsets.all(60),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.all(24.0),
+                  padding: EdgeInsets.all(24),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -101,7 +101,7 @@ class _PageState extends State<Page> {
                           "TICK",
                           style: _tts,
                         ),
-                        opacity: _tick - _opa,
+                        opacity: _tick - _op,
                         duration: _dur,
                         curve: curve,
                       ),
@@ -132,29 +132,30 @@ class _PageState extends State<Page> {
                 children: [
                   Text("WASTED", style: _tts),
                   Text(
-                    "Try again tomorrow!",
+                    "Try again!",
                     style: _cts,
                   ),
                 ],
               ),
-              opacity: _opa,
+              opacity: _op,
               duration: _dur,
               curve: curve,
             ),
           ),
           Positioned(
             top: MediaQuery.of(context).size.height * (1 - 0.6),
-            height: 60.0 * (1 - _opa),
+            height: 60 * (1 - _op),
             width: MediaQuery.of(context).size.width,
             child: Column(
               children: [
                 Divider(
-                  height: 2.0,
+                  height: 2,
                   color: black,
                 ),
                 Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("Reclaim your workday! Limit 2 hours"),
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                      "Reclaim your workday! ${(_limit / 60).floor().toString()} min. limit"),
                 ),
               ],
             ),
@@ -162,23 +163,23 @@ class _PageState extends State<Page> {
         ],
       ),
       floatingActionButton: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(8),
         child: FloatingActionButton(
           foregroundColor: black,
           backgroundColor: Colors.white,
           child: _watch.isRunning
               ? Text("Pause")
-              : _opa == 1.0 ? Text("Reset") : Text("Go"),
+              : _op == 1 ? Text("Reset") : Text("Go"),
           onPressed: () {
             setState(() {
               if (_watch.isRunning) {
                 _watch.stop();
               } else {
-                if (_opa == 1.0) {
+                if (_op == 1) {
                   reset();
                 } else {
                   _watch.start();
-                  Timer.periodic(Duration(milliseconds: 900), update);
+                  Timer.periodic(Duration(milliseconds: 950), update);
                 }
               }
             });
