@@ -15,7 +15,7 @@ Death By Meeting is a fun way to pay attention to this balance.
 
 ## Flutter Create
 
-For Flutter Create I have set the limit to 5 minutes. If needed you can change the variable _limit in main.dart to a lower number (in seconds)
+For Flutter Create I have set the limit to 2 minutes. If needed you can change the variable _limit in main.dart to a lower number (in seconds)
 
 
 ## Possible features
