@@ -173,7 +173,7 @@ class _PageState extends State<Page> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(6.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "Meetings are toxic. Don't spend too much time in meetings. It kills your productivity and creativity. Set your limit but don't overdo it or you will perish.",
                           textAlign: TextAlign.center,
@@ -181,7 +181,7 @@ class _PageState extends State<Page> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

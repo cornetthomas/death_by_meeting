@@ -30,7 +30,7 @@ class ShareWidget extends StatelessWidget {
           color: Colors.white,
           onPressed: () {
             Share.share(
-                "WASTED... I died from too many meetings today after$_hourString$_minutesString. What about you? Check it out on https://thismightwork.co");
+                "WASTED... I died from too many meetings today after$_hourString$_minutesString. What about you? Check it out on https://deathbymeeting.thismightwork.co");
           },
         )
       ],
