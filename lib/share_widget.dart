@@ -8,8 +8,6 @@ class ShareWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _time = 1800;
-
     int _hours = (_time / 3600).floor();
     int _minutes = ((_time % 3600) / 60).floor();
 
@@ -24,7 +22,7 @@ class ShareWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-              "Help others escape the toxic culture and share your defeat. "),
+              "Help others escape the toxic culture and share your defeat."),
         ),
         RaisedButton.icon(
           label: Text("Share"),
