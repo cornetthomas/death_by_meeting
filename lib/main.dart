@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:death_by_meeting/share_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:share/share.dart';
 
 enum TimerState { init, play, pause, reset, end }
 
@@ -287,10 +289,7 @@ class _PageState extends State<Page> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("WASTED", style: _ts),
-                  Text(
-                    "Try again!",
-                    style: _cs,
-                  ),
+                  ShareWidget(_elapsedSec),
                 ],
               ),
               opacity: _opacity,
