@@ -158,7 +158,8 @@ class _PageState extends State<Page> {
             duration: _duration,
             curve: curve,
             bottom: !hasStarted ? 100 : -100,
-            width: MediaQuery.of(context).size.width,
+            left: 5,
+            right: 5,
             child: AnimatedOpacity(
               duration: Duration(milliseconds: 500),
               curve: curve,
