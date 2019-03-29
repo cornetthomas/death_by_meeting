@@ -23,7 +23,7 @@ For Flutter Create I have set the limit to 2 minutes. If needed you can change t
 To keep the file size low some possible features where not possible:
 1. Ability to define your own time limit - DONE
 2. Ability to reset before reaching the end of the timer - DONE
-3. Share option to Twitter
+3. Share option to Twitter - DONE
 
 
 
