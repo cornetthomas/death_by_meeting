@@ -16,6 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
   share: ^0.6.0+1
+  auto_size_text: ^1.1.1
 
 
 

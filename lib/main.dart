@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:death_by_meeting/share_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:share/share.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 enum TimerState { init, play, pause, reset, end }
 
@@ -18,6 +18,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Page(),
       theme: ThemeData(
         fontFamily: 'Abel',
@@ -35,7 +36,7 @@ class _PageState extends State<Page> {
   TimerState _state = TimerState.init;
 
   double _height = 0;
-  int _limit = 7200;
+  int _limit = 1200;
   int _elapsedSec = 0;
   double _opacity = 0;
   double _tickOpacity = 1;
@@ -44,6 +45,10 @@ class _PageState extends State<Page> {
   Color _color = black;
   TextStyle _titleStyle = TextStyle(
     fontSize: 38,
+    color: black,
+  );
+  TextStyle _tickerStyle = TextStyle(
+    fontSize: 45,
     color: black,
   );
   TextStyle _subtitleStyle = TextStyle(
@@ -152,9 +157,7 @@ class _PageState extends State<Page> {
           AnimatedPositioned(
             duration: _duration,
             curve: curve,
-            top: !hasStarted
-                ? MediaQuery.of(context).size.height * 0.4
-                : MediaQuery.of(context).size.height,
+            bottom: !hasStarted ? 100 : -100,
             width: MediaQuery.of(context).size.width,
             child: AnimatedOpacity(
               duration: Duration(milliseconds: 500),
@@ -166,7 +169,7 @@ class _PageState extends State<Page> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(4.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "Reclaim your workday!",
                           style: _titleStyle,
@@ -268,24 +271,24 @@ class _PageState extends State<Page> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 24),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         AnimatedOpacity(
-                          child: Text(
+                          child: AutoSizeText(
                             "TICK",
-                            style: _titleStyle,
+                            style: _tickerStyle,
                           ),
                           opacity: _tickOpacity - _opacity,
                           duration: _duration,
                           curve: curve,
                         ),
                         AnimatedOpacity(
-                          child: Text(
+                          child: AutoSizeText(
                             "TOCK",
-                            style: _titleStyle,
+                            style: _tickerStyle,
                           ),
                           opacity: 1.0 - _tickOpacity,
                           duration: _duration,
