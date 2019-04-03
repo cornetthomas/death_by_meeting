@@ -36,7 +36,7 @@ class _PageState extends State<Page> {
   TimerState _state = TimerState.init;
 
   double _height = 0;
-  int _limit = 1200;
+  int _limit = 7200;
   int _elapsedSec = 0;
   double _opacity = 0;
   double _tickOpacity = 1;
@@ -205,11 +205,16 @@ class _PageState extends State<Page> {
                                 },
                               ),
                             ),
-                            Padding(
+                            Container(
+                              width: 150.0,
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
                                 children: [
-                                  Text("Limit", textAlign: TextAlign.center),
+                                  Text(
+                                    "Limit",
+                                    textAlign: TextAlign.center,
+                                    style: _subtitleStyle,
+                                  ),
                                   Text(
                                     "$_hourString$_minutesString",
                                   ),
@@ -298,10 +303,16 @@ class _PageState extends State<Page> {
                       ],
                     ),
                   ),
-                  Text("Time left:"),
                   Text(
-                    "${((_limit - _elapsedSec) / 60).floor().toString().padLeft(2, "0")} min. ${((_limit - _elapsedSec) % 60).toString().padLeft(2, "0")} sec.",
-                    style: _captionStyle,
+                    "Time left:",
+                    style: _subtitleStyle,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "${((_limit - _elapsedSec) / 3600).floor().toString()} hours.  ${(((_limit - _elapsedSec) % 3600) / 60).floor().toString().padLeft(2, "0")} min. ${((_limit - _elapsedSec) % 60).toString().padLeft(2, "0")} sec.",
+                      style: _captionStyle,
+                    ),
                   ),
                 ],
               ),
