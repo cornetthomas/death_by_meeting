@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:death_by_meeting/share_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 enum TimerState { init, play, pause, reset, end }
 
@@ -32,16 +34,17 @@ class Page extends StatefulWidget {
   _PageState createState() => _PageState();
 }
 
-class _PageState extends State<Page> {
+class _PageState extends State<Page> with WidgetsBindingObserver {
   TimerState _state = TimerState.init;
 
   double _height = 0;
   int _limit = 7200;
   int _elapsedSec = 0;
+  int _sessionOffsetSeconds = 0;
   double _opacity = 0;
   double _tickOpacity = 1;
   Duration _duration = Duration(milliseconds: 350);
-  Stopwatch _watch = Stopwatch();
+
   Color _color = black;
   TextStyle _titleStyle = TextStyle(
     fontSize: 38,
@@ -64,10 +67,128 @@ class _PageState extends State<Page> {
 
   String _actionLabel = "Go";
 
+  DateTime _startTime;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    _restoreState();
+  }
+
+  void _restoreState() async {
+    _loadTimerStartState().then((startEpoch) {
+      _startTime =
+          startEpoch == null ? DateTime.now() : epochToDate(startEpoch);
+    });
+
+    _loadElapsedSeconds().then((elapsedSeconds) {
+      _elapsedSec = elapsedSeconds == null ? 0 : elapsedSeconds;
+    });
+
+    _loadLimit().then((limit) {
+      _limit = limit == null ? _limit : limit;
+    });
+
+    _loadTimerState().then((state) {
+      switch (state) {
+        case "TimerState.init":
+          _state = TimerState.init;
+          break;
+        case "TimerState.play":
+          _state = TimerState.play;
+          break;
+        case "TimerState.pause":
+          _state = TimerState.pause;
+          break;
+        case "TimerState.reset":
+          _state = TimerState.reset;
+          break;
+        case "TimerState.end":
+          _state = TimerState.end;
+          break;
+        default:
+          _state = TimerState.init;
+          break;
+      }
+    });
+  }
+
+  void _saveTimerStartState(int start) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setInt('start', start);
+  }
+
+  void _saveElapsedSeconds(int elapsedSeconds) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setInt('elapsedSeconds', elapsedSeconds);
+  }
+
+  void _saveLimit(int limit) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setInt('limit', limit);
+  }
+
+  void _saveTimerState(TimerState state) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('state', state.toString());
+  }
+
+  Future<int> _loadElapsedSeconds() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int elapsedSeconds = prefs.getInt("elapsedSeconds");
+
+    return elapsedSeconds;
+  }
+
+  Future<int> _loadLimit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int limit = prefs.getInt("limit");
+
+    return limit;
+  }
+
+  Future<String> _loadTimerState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String state = prefs.getString("timerState");
+
+    return state;
+  }
+
+  Future<int> _loadTimerStartState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int start = prefs.getInt("start");
+
+    return start;
+  }
+
+  String epochToFormat(int epoch) {
+    DateTime _datetime =
+        DateTime.fromMillisecondsSinceEpoch(epoch, isUtc: true);
+    var formatter = DateFormat('dd-MM-yyyy HH:mm:ss');
+    return formatter.format(_datetime);
+  }
+
+  DateTime epochToDate(int epoch) {
+    return DateTime.fromMillisecondsSinceEpoch(epoch, isUtc: true);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+  }
+
   void update(Timer t) {
     if (_state == TimerState.play) {
       setState(() {
-        _elapsedSec = _watch.elapsed.inSeconds;
+        _elapsedSec = DateTime.now().difference(_startTime).inSeconds +
+            _sessionOffsetSeconds;
+
         _tickOpacity = 1 - _tickOpacity;
 
         Curve curve = Curves.easeOutQuart;
@@ -79,7 +200,6 @@ class _PageState extends State<Page> {
         _height = _height < 0 ? 0 : _height;
 
         if (_elapsedSec == _limit) {
-          _watch.stop();
           _height = MediaQuery.of(context).size.height;
           _opacity = _tickOpacity = 1;
           _color = Colors.redAccent;
@@ -94,8 +214,13 @@ class _PageState extends State<Page> {
 
   void start() {
     setState(() {
-      _watch.start();
-      Timer.periodic(Duration(milliseconds: 1000), update);
+      _saveLimit(_limit);
+      _saveTimerState(_state);
+      _saveTimerStartState(_startTime.millisecondsSinceEpoch);
+
+      _startTime = DateTime.now();
+
+      Timer.periodic(Duration(milliseconds: 950), update);
       hasStarted = true;
       _state = TimerState.play;
       _actionLabel = "Pause";
@@ -104,24 +229,24 @@ class _PageState extends State<Page> {
 
   void pause() {
     setState(() {
-      _watch.stop();
       _actionLabel = "Go";
       _state = TimerState.pause;
+      _saveElapsedSeconds(_elapsedSec);
     });
   }
 
   void resume() {
     setState(() {
-      _watch.start();
+      _startTime = DateTime.now();
       _actionLabel = "Pause";
       _state = TimerState.play;
-      Timer.periodic(Duration(milliseconds: 1000), update);
+      Timer.periodic(Duration(milliseconds: 950), update);
+      _sessionOffsetSeconds = _elapsedSec;
     });
   }
 
   void end() {
     setState(() {
-      _watch.stop();
       _actionLabel = "Reset";
       _state = TimerState.reset;
       hasStarted = false;
@@ -133,10 +258,11 @@ class _PageState extends State<Page> {
       _elapsedSec = 0;
       _height = _opacity = 0;
       _color = black;
-      _watch.reset();
       hasStarted = false;
       _state = TimerState.init;
       _actionLabel = "Go";
+      _saveTimerStartState(0);
+      _saveElapsedSeconds(0);
     });
   }
 
@@ -388,5 +514,15 @@ class _PageState extends State<Page> {
             ]),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+
+    _saveElapsedSeconds(_elapsedSec);
+    _saveLimit(_limit);
+    _saveTimerState(_state);
   }
 }
