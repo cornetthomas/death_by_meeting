@@ -44,7 +44,7 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
   double _opacity = 0;
   double _tickOpacity = 1;
   Duration _duration = Duration(milliseconds: 350);
-  Stopwatch _watch = Stopwatch();
+
   Color _color = black;
   TextStyle _titleStyle = TextStyle(
     fontSize: 38,
@@ -200,7 +200,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
         _height = _height < 0 ? 0 : _height;
 
         if (_elapsedSec == _limit) {
-          _watch.stop();
           _height = MediaQuery.of(context).size.height;
           _opacity = _tickOpacity = 1;
           _color = Colors.redAccent;
@@ -219,7 +218,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
       _saveTimerState(_state);
       _saveTimerStartState(_startTime.millisecondsSinceEpoch);
 
-      _watch.start();
       _startTime = DateTime.now();
 
       Timer.periodic(Duration(milliseconds: 950), update);
@@ -231,7 +229,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
 
   void pause() {
     setState(() {
-      _watch.stop();
       _actionLabel = "Go";
       _state = TimerState.pause;
       _saveElapsedSeconds(_elapsedSec);
@@ -241,7 +238,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
   void resume() {
     setState(() {
       _startTime = DateTime.now();
-      _watch.start();
       _actionLabel = "Pause";
       _state = TimerState.play;
       Timer.periodic(Duration(milliseconds: 950), update);
@@ -251,7 +247,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
 
   void end() {
     setState(() {
-      _watch.stop();
       _actionLabel = "Reset";
       _state = TimerState.reset;
       hasStarted = false;
@@ -263,7 +258,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
       _elapsedSec = 0;
       _height = _opacity = 0;
       _color = black;
-      _watch.reset();
       hasStarted = false;
       _state = TimerState.init;
       _actionLabel = "Go";
