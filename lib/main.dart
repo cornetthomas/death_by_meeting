@@ -220,7 +220,7 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
 
       _startTime = DateTime.now();
 
-      Timer.periodic(Duration(milliseconds: 950), update);
+      Timer.periodic(Duration(milliseconds: 1000), update);
       hasStarted = true;
       _state = TimerState.play;
       _actionLabel = "Pause";
@@ -240,7 +240,7 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
       _startTime = DateTime.now();
       _actionLabel = "Pause";
       _state = TimerState.play;
-      Timer.periodic(Duration(milliseconds: 950), update);
+      Timer.periodic(Duration(milliseconds: 1000), update);
       _sessionOffsetSeconds = _elapsedSec;
     });
   }
