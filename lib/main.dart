@@ -95,7 +95,7 @@ class _PageState extends State<Page> {
   void start() {
     setState(() {
       _watch.start();
-      Timer.periodic(Duration(milliseconds: 950), update);
+      Timer.periodic(Duration(milliseconds: 1000), update);
       hasStarted = true;
       _state = TimerState.play;
       _actionLabel = "Pause";
@@ -115,7 +115,7 @@ class _PageState extends State<Page> {
       _watch.start();
       _actionLabel = "Pause";
       _state = TimerState.play;
-      Timer.periodic(Duration(milliseconds: 950), update);
+      Timer.periodic(Duration(milliseconds: 1000), update);
     });
   }
 
