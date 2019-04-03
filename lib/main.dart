@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:death_by_meeting/share_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 enum TimerState { init, play, pause, reset, end }
 
@@ -16,6 +18,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Page(),
       theme: ThemeData(
         fontFamily: 'Abel',
@@ -33,18 +36,26 @@ class _PageState extends State<Page> {
   TimerState _state = TimerState.init;
 
   double _height = 0;
-  int _limit = 5;
+  int _limit = 7200;
   int _elapsedSec = 0;
   double _opacity = 0;
   double _tickOpacity = 1;
   Duration _duration = Duration(milliseconds: 350);
   Stopwatch _watch = Stopwatch();
   Color _color = black;
-  TextStyle _ts = TextStyle(
+  TextStyle _titleStyle = TextStyle(
     fontSize: 38,
     color: black,
   );
-  TextStyle _cs = TextStyle(
+  TextStyle _tickerStyle = TextStyle(
+    fontSize: 45,
+    color: black,
+  );
+  TextStyle _subtitleStyle = TextStyle(
+    fontSize: 20,
+    color: black,
+  );
+  TextStyle _captionStyle = TextStyle(
     fontSize: 16,
     color: black,
   );
@@ -131,17 +142,24 @@ class _PageState extends State<Page> {
 
   @override
   Widget build(BuildContext context) {
+    int _hours = (_limit / 3600).floor();
+    int _minutes = ((_limit % 3600) / 60).floor();
+
+    String _hourString =
+        _hours == 0 ? "" : _hours == 1 ? " $_hours hour" : " $_hours hours";
+    String _minutesString = _minutes == 0
+        ? ""
+        : _minutes == 1 ? " $_minutes minute" : " $_minutes minutes";
+
     return Scaffold(
       body: Stack(
         children: [
           AnimatedPositioned(
             duration: _duration,
             curve: curve,
-            top: !hasStarted
-                ? MediaQuery.of(context).size.height * 0.6
-                : MediaQuery.of(context).size.height,
-            height: 250,
-            width: MediaQuery.of(context).size.width,
+            bottom: !hasStarted ? 100 : -100,
+            left: 5,
+            right: 5,
             child: AnimatedOpacity(
               duration: Duration(milliseconds: 500),
               curve: curve,
@@ -152,18 +170,22 @@ class _PageState extends State<Page> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(4.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "Reclaim your workday!",
-                          style: _ts,
+                          style: _titleStyle,
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Text("Meetings are toxic."),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Meetings are toxic. Don't spend too much time in meetings. It kills your productivity and creativity. Set your limit but don't overdo it or you will perish.",
+                          textAlign: TextAlign.center,
+                          style: _subtitleStyle,
+                        ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -183,10 +205,20 @@ class _PageState extends State<Page> {
                                 },
                               ),
                             ),
-                            Padding(
+                            Container(
+                              width: 150.0,
                               padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "${(_limit / 3600).toString()} hour. limit",
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "Limit",
+                                    textAlign: TextAlign.center,
+                                    style: _subtitleStyle,
+                                  ),
+                                  Text(
+                                    "$_hourString$_minutesString",
+                                  ),
+                                ],
                               ),
                             ),
                             Container(
@@ -245,24 +277,24 @@ class _PageState extends State<Page> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 24),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         AnimatedOpacity(
-                          child: Text(
+                          child: AutoSizeText(
                             "TICK",
-                            style: _ts,
+                            style: _tickerStyle,
                           ),
                           opacity: _tickOpacity - _opacity,
                           duration: _duration,
                           curve: curve,
                         ),
                         AnimatedOpacity(
-                          child: Text(
+                          child: AutoSizeText(
                             "TOCK",
-                            style: _ts,
+                            style: _tickerStyle,
                           ),
                           opacity: 1.0 - _tickOpacity,
                           duration: _duration,
@@ -271,10 +303,16 @@ class _PageState extends State<Page> {
                       ],
                     ),
                   ),
-                  Text("Time left:"),
                   Text(
-                    "${((_limit - _elapsedSec) / 60).floor().toString().padLeft(2, "0")} min. ${((_limit - _elapsedSec) % 60).toString().padLeft(2, "0")} sec.",
-                    style: _cs,
+                    "Time left:",
+                    style: _subtitleStyle,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "${((_limit - _elapsedSec) / 3600).floor().toString()} hours.  ${(((_limit - _elapsedSec) % 3600) / 60).floor().toString().padLeft(2, "0")} min. ${((_limit - _elapsedSec) % 60).toString().padLeft(2, "0")} sec.",
+                      style: _captionStyle,
+                    ),
                   ),
                 ],
               ),
@@ -286,11 +324,8 @@ class _PageState extends State<Page> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("WASTED", style: _ts),
-                  Text(
-                    "Try again!",
-                    style: _cs,
-                  ),
+                  Text("WASTED", style: _titleStyle),
+                  ShareWidget(_elapsedSec),
                 ],
               ),
               opacity: _opacity,
