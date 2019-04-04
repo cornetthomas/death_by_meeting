@@ -74,14 +74,26 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
+    print("init");
     _restoreState();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    print("$state");
+
+    if (state == AppLifecycleState.inactive) {
+      print("persist current state");
+      _saveElapsedSeconds(_elapsedSec);
+      _saveLimit(_limit);
+      _saveTimerState(_state);
+    }
+  }
+
   void _restoreState() async {
-    _loadTimerStartState().then((startEpoch) {
-      _startTime =
-          startEpoch == null ? DateTime.now() : epochToDate(startEpoch);
-    });
+    print("restore");
 
     _loadElapsedSeconds().then((elapsedSeconds) {
       _elapsedSec = elapsedSeconds == null ? 0 : elapsedSeconds;
@@ -89,29 +101,45 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
 
     _loadLimit().then((limit) {
       _limit = limit == null ? _limit : limit;
+      print(_limit);
     });
 
-    _loadTimerState().then((state) {
-      switch (state) {
-        case "TimerState.init":
-          _state = TimerState.init;
-          break;
-        case "TimerState.play":
-          _state = TimerState.play;
-          break;
-        case "TimerState.pause":
-          _state = TimerState.pause;
-          break;
-        case "TimerState.reset":
-          _state = TimerState.reset;
-          break;
-        case "TimerState.end":
-          _state = TimerState.end;
-          break;
-        default:
-          _state = TimerState.init;
-          break;
-      }
+    _loadTimerStartState().then((startEpoch) {
+      _startTime =
+          startEpoch == null ? DateTime.now() : epochToDate(startEpoch);
+      print(_startTime);
+
+      _loadTimerState().then((state) {
+        print(state);
+        setState(() {
+          switch (state) {
+            case "TimerState.init":
+              _state = TimerState.init;
+              break;
+            case "TimerState.play":
+              _state = TimerState.play;
+              startWith(_startTime);
+              break;
+            case "TimerState.pause":
+              _state = TimerState.pause;
+              startWith(_startTime);
+              pause();
+              break;
+            case "TimerState.reset":
+              _state = TimerState.reset;
+              reset();
+              break;
+            case "TimerState.end":
+              _state = TimerState.end;
+              end();
+              break;
+            default:
+              _state = TimerState.init;
+              break;
+          }
+        });
+        print(_state);
+      });
     });
   }
 
@@ -136,7 +164,7 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
   void _saveTimerState(TimerState state) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString('state', state.toString());
+    await prefs.setString('timerState', state.toString());
   }
 
   Future<int> _loadElapsedSeconds() async {
@@ -178,11 +206,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
     return DateTime.fromMillisecondsSinceEpoch(epoch, isUtc: true);
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-  }
-
   void update(Timer t) {
     if (_state == TimerState.play) {
       setState(() {
@@ -212,19 +235,37 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
     }
   }
 
-  void start() {
+  void startWith(DateTime startTime) {
     setState(() {
+      _startTime = startTime;
+
+      print("go");
       _saveLimit(_limit);
       _saveTimerState(_state);
       _saveTimerStartState(_startTime.millisecondsSinceEpoch);
-
-      _startTime = DateTime.now();
 
       Timer.periodic(Duration(milliseconds: 1000), update);
       hasStarted = true;
       _state = TimerState.play;
       _actionLabel = "Pause";
     });
+  }
+
+  void start() {
+    startWith(DateTime.now());
+    /*setState(() {
+      print("go");
+      _saveLimit(_limit);
+      _saveTimerState(_state);
+      _saveTimerStartState(_startTime.millisecondsSinceEpoch);
+
+     // _startTime = DateTime.now();
+
+      Timer.periodic(Duration(milliseconds: 1000), update);
+      hasStarted = true;
+      _state = TimerState.play;
+      _actionLabel = "Pause";
+    }); */
   }
 
   void pause() {
