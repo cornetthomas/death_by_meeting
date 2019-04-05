@@ -47,7 +47,7 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
   FirebaseAnalytics _firebaseAnalytics;
 
   double _height = 0;
-  int _limit = 10;
+  int _limit = 7200;
   int _elapsedSec = 0;
   int _sessionOffsetSeconds = 0;
   double _opacity = 0;
@@ -298,7 +298,7 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
       _saveTimerStartState(0);
       _saveElapsedSeconds(0);
       _saveTimerState(TimerState.init);
-      _saveLimit(200);
+      _saveLimit(7200);
     });
   }
 
