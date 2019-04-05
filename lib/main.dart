@@ -4,10 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 enum TimerState { init, play, pause, reset, end }
 
-void main() => runApp(App());
+void main() {
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((_) {
+    runApp(App());
+  });
+}
 
 const black = Colors.black87;
 const curve = Curves.easeInOut;
@@ -36,6 +43,8 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> with WidgetsBindingObserver {
   TimerState _state = TimerState.init;
+
+  FirebaseAnalytics _firebaseAnalytics;
 
   double _height = 0;
   int _limit = 7200;
@@ -74,7 +83,10 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    print("init");
+    _firebaseAnalytics = FirebaseAnalytics();
+
+    _firebaseAnalytics.setCurrentScreen(screenName: "main");
+
     _restoreState();
   }
 
@@ -82,10 +94,7 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    print("$state");
-
     if (state == AppLifecycleState.inactive) {
-      print("persist current state");
       _saveElapsedSeconds(_elapsedSec);
       _saveLimit(_limit);
       _saveTimerState(_state);
@@ -93,24 +102,19 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
   }
 
   void _restoreState() async {
-    print("restore");
-
     _loadElapsedSeconds().then((elapsedSeconds) {
       _elapsedSec = elapsedSeconds == null ? 0 : elapsedSeconds;
     });
 
     _loadLimit().then((limit) {
       _limit = limit == null ? _limit : limit;
-      print(_limit);
     });
 
     _loadTimerStartState().then((startEpoch) {
       _startTime =
           startEpoch == null ? DateTime.now() : epochToDate(startEpoch);
-      print(_startTime);
 
       _loadTimerState().then((state) {
-        print(state);
         setState(() {
           switch (state) {
             case "TimerState.init":
@@ -138,7 +142,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
               break;
           }
         });
-        print(_state);
       });
     });
   }
@@ -216,13 +219,16 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
 
         Curve curve = Curves.easeOutQuart;
 
-        _height = curve.transform(_elapsedSec / _limit) *
+        double _heightRate = _elapsedSec / _limit;
+
+        _height = curve.transform(
+                _heightRate < 0 ? 0 : _heightRate > 1 ? 1 : _heightRate) *
             MediaQuery.of(context).size.height *
             0.6;
 
         _height = _height < 0 ? 0 : _height;
 
-        if (_elapsedSec == _limit) {
+        if (_elapsedSec >= _limit) {
           _height = MediaQuery.of(context).size.height;
           _opacity = _tickOpacity = 1;
           _color = Colors.redAccent;
@@ -239,7 +245,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
     setState(() {
       _startTime = startTime;
 
-      print("go");
       _saveLimit(_limit);
       _saveTimerState(_state);
       _saveTimerStartState(_startTime.millisecondsSinceEpoch);
@@ -253,19 +258,6 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
 
   void start() {
     startWith(DateTime.now());
-    /*setState(() {
-      print("go");
-      _saveLimit(_limit);
-      _saveTimerState(_state);
-      _saveTimerStartState(_startTime.millisecondsSinceEpoch);
-
-     // _startTime = DateTime.now();
-
-      Timer.periodic(Duration(milliseconds: 1000), update);
-      hasStarted = true;
-      _state = TimerState.play;
-      _actionLabel = "Pause";
-    }); */
   }
 
   void pause() {
@@ -292,6 +284,7 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
       _state = TimerState.reset;
       hasStarted = false;
     });
+    _firebaseAnalytics.logEvent(name: "end");
   }
 
   void reset() {
@@ -304,6 +297,8 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
       _actionLabel = "Go";
       _saveTimerStartState(0);
       _saveElapsedSeconds(0);
+      _saveTimerState(TimerState.init);
+      _saveLimit(7200);
     });
   }
 
@@ -534,18 +529,32 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
                             switch (_state) {
                               case TimerState.init:
                                 start();
+                                _firebaseAnalytics.logEvent(
+                                    name: "start",
+                                    parameters: {"limit": _limit});
                                 break;
                               case TimerState.play:
                                 pause();
+                                _firebaseAnalytics.logEvent(
+                                    name: "pause",
+                                    parameters: {"limit": _limit});
                                 break;
                               case TimerState.pause:
                                 resume();
+                                _firebaseAnalytics.logEvent(
+                                    name: "resume",
+                                    parameters: {"limit": _limit});
                                 break;
                               case TimerState.end:
+                                _firebaseAnalytics.logEvent(
+                                    name: "end", parameters: {"limit": _limit});
                                 end();
                                 break;
                               case TimerState.reset:
                                 reset();
+                                _firebaseAnalytics.logEvent(
+                                    name: "reset",
+                                    parameters: {"limit": _limit});
                                 break;
                             }
                           });
