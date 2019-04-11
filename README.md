@@ -5,7 +5,7 @@ Hey, not all meetings are bad. But a finding a balance between deep meaningful w
 
 Death By Meeting is a fun way to pay attention to this balance.
 
-## How does is work
+## How does it work
 
 1. Each time you enter a meeting hit the start button. The timer wil start and you will slowly progress until doom.
  - Alternatively you start once you lose attention in a meeting and you don't longer know why you are there.
