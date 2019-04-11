@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum TimerState { init, play, pause, reset, end }
 
@@ -69,6 +70,11 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
   );
   TextStyle _captionStyle = TextStyle(
     fontSize: 16,
+    color: black,
+  );
+
+  TextStyle _smallStyle = TextStyle(
+    fontSize: 12,
     color: black,
   );
 
@@ -316,6 +322,19 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
     return Scaffold(
       body: Stack(
         children: [
+          Positioned(
+            child: FlatButton(
+              child: Text(
+                "Privacy Policy",
+                style: _smallStyle,
+              ),
+              onPressed: _launchURL,
+            ),
+            bottom: 40.0,
+            left: MediaQuery.of(context).size.width / 2 - 100,
+            height: 20.0,
+            width: 200.0,
+          ),
           AnimatedPositioned(
             duration: _duration,
             curve: curve,
@@ -564,6 +583,16 @@ class _PageState extends State<Page> with WidgetsBindingObserver {
             ]),
       ),
     );
+  }
+
+  _launchURL() async {
+    const url = 'https://deathbymeeting.thismightwork.co/#privacy';
+    print(url);
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override

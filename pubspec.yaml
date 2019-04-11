@@ -7,7 +7,7 @@ description: Death By Meeting
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
 # Read more about versioning at semver.org.
-version: 1.2.1+7
+version: 1.2.1+8
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -20,6 +20,7 @@ dependencies:
   shared_preferences: ^0.5.1+2
   intl: ^0.15.6
   firebase_analytics: ^2.1.1
+  url_launcher: ^5.0.2
 
 
 
